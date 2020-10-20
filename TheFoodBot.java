@@ -20,11 +20,12 @@ public class TheFoodBot {
         api.addMessageCreateListener(event -> {
             String messageOriginal = event.getMessageContent();
             String message = messageOriginal.toLowerCase();
+			
             if(event.getMessageAuthor().isBotUser() || (message.length() < 1) || (message.charAt(0) != '!')){
                 message = "";
                 outputMessage.set("");
             }
-            if(message.contains("!choose:")){
+            else if(message.contains("!choose:")){
                 // wait(100);
                 event.getChannel().sendMessage("https://thumbs.gfycat.com/SecondTartCygnet-size_restricted.gif");
                 String choice = RollDice.rollForChoice(RollDice.getOptions(messageOriginal));
@@ -32,10 +33,9 @@ public class TheFoodBot {
                 outputMessage.set(choice + ", I choose you!");
                 //event.getChannel().sendMessage(choice+", I choose you!");
                 message = "";
-
-
             }
-            if(message.contains(dice.toLowerCase()) || message.contains(rollSomeDice.toLowerCase())
+			
+            else if(message.contains(dice.toLowerCase()) || message.contains(rollSomeDice.toLowerCase())
                     || message.contains(rollNSided.toLowerCase())
                     || message.contains("roll a d".toLowerCase()) || message.contains("roll me some dice")){
                 int diceRoll;
@@ -54,6 +54,18 @@ public class TheFoodBot {
                 diceRoll = RollDice.rollDice(nSides);
                 outputMessage.set(diceRoll+"");
             }
+
+            else if (event.getMessageContent().equalsIgnoreCase("!Help Menu")) {
+                event.getChannel().sendMessage("!rr: [cuisine/type of restaurant] [Zip Code]\n" +
+                        "!rn: [ZIP Code]\n" +
+                        "!choose: [name1], [name2], [name3],...,[name30]");
+            }
+
+            else {
+                event.getChannel().sendMessage("It seems like you are calling for us, but we cannot do whatever it is that you are asking of us.\n" +
+                        "Refer to our help menu by typing \"!Help Menu\" to see what commands are available.");
+            }
+			
             message = "";
             //  wait(50);
             event.getChannel().sendMessage(String.valueOf(outputMessage));
