@@ -27,17 +27,75 @@ public class GoogleSearch {
             Document doc = Jsoup.connect(url).get();
             String plaintext = doc.text();
 
-            // Write the plaintext to a new file to examine on how to parse/get futher information
-            File file = new File("C:\\Users\\prakr\\Desktop\\School\\GMU\\Fall 2020\\Software Engineering\\myfirstbot\\src\\main\\java\\com\\github\\assemblingpanda\\htmlPrintOut1.txt");
-            file.createNewFile();
-            FileWriter wFile = new FileWriter(file);
-            BufferedWriter outFile = new BufferedWriter(wFile);
-            outFile.write(plaintext);
-            outFile.close();
-            wFile.close();
+            // Write the plaintext to a new file to examine on how to parse/get further information
+            if(!writeFile(plaintext, "HTMLtoPlaintext")) return "error";
+
+            // Parsing work: get addresses of restaurants (3 of them)
+            String [] splitPlaintext = plaintext.split("\u00b7"); // "·" interpunct
+            String parsedPlaintext = "";
+            for(String s : splitPlaintext){
+                if(s.toLowerCase().startsWith(" " + split[0] + "")){
+                    parsedPlaintext += s + "\n";
+                }
+            }
+            if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error";
+            parsed = parsedPlaintext; // set printing to those 3 res addresses
+
+            // search one of the 3 restaurants and see if parsing is possible to get info
+            splitPlaintext = parsed.split("\n");
+            url = "https://www.google.com/search" + "?q=" + splitPlaintext[1].replaceAll(" ", "");
+            try{
+                doc = Jsoup.connect(url).get();
+                plaintext = doc.text();
+            } catch(IOException e){
+                return "error";
+            };
+            if(!writeFile(plaintext, "res1")) return "error";
+
+            // after checking file, it seems that it might be possible
+            splitPlaintext = plaintext.split("See photos");
+            // Then work with more delims. Can this be done? hmmm
+            /*
+                See photos
+
+                Ciro's New York Pizza Website Directions Saved (0) Saved Save
+
+                4.5351 Google reviews $$Italian restaurant Order pickup New! View menu and order food Hungry? Try ordering online Order
+                delivery New York-style pizza & classic pastas are served in a wood-paneled space with burgundy accents. Dine-in· Takeout· No-contact delivery
+
+                Located in: Centreville Crest Shopping Center
+
+                Address: 6067 Centreville Crest Ln, Centreville, VA 20121
+
+                Hours: Closed ? Opens 11AM Tuesday 11AM–11PM Wednesday 11AM–11PM Thursday 11AM–11PM Friday 11AM–11PM Saturday 11AM–11PM Sunday 11AM–10PM Monday 11AM–11PM
+
+                Suggest an edit Unable to add this file. Please check that it is a valid photo.
+
+                Menu: ciro-ristorante-online-ordering-centreville.brygid.online
+
+                Phone: (703) 830-0003 Hours or services may differ Category: : Place name: : : : Website: : : Suggest an edit Unable to add this file...
+             */
+
         } catch(IOException e) {
-            System.out.println("Either file could not be created or could not connect.");
+            return "error";
         };
         return parsed;
     }
+
+    // Used for debugging and thinking about ways to parse
+    private static Boolean writeFile(String s, String fileName){
+        try{
+            File file = new File("C:\\Users\\prakr\\Desktop\\School\\GMU\\Fall 2020\\Software Engineering\\myfirstbot\\src\\main\\java\\com\\github\\assemblingpanda\\" + fileName + ".txt");
+            file.createNewFile();
+            FileWriter wFile = new FileWriter(file);
+            BufferedWriter outFile = new BufferedWriter(wFile);
+            outFile.write(s);
+            outFile.close();
+            wFile.close();
+        } catch(IOException e){
+            return false;
+        }
+        return true;
+    }
+
 }
