@@ -20,7 +20,8 @@ public class GoogleSearch {
         // Setting up return value and the search query
         String parsed = "";
         String [] split = keywords.split(" ");
-        String url = "https://www.google.com/search" + "?q=" + "\"" + split[0] + "\"%20" + "restaurants%20near%20\"" + split[1] + "\"";
+        String url = "https://www.google.com/search" + "?q=" + split[0] + "%20" + "restaurants%20near%20" + split[1];
+        //String url = "https://www.google.com/search" + "?q=" + "\"" + split[0] + "\"%20" + "restaurants%20near%20\"" + split[1] + "\"";
         //String url = "https://www.google.com/maps/search/" + split[0] + "+restaurants+near+" + split[1]; // Google Maps is not compatible...
         try {
             // Get the HTML source with the query (url), then parse to plaintext
@@ -32,10 +33,22 @@ public class GoogleSearch {
 
             // Parsing work: get addresses of restaurants (3 of them)
             String [] splitPlaintext = plaintext.split("\u00b7"); // "·" interpunct
+
+            int i = 0;
+            int entered = 0;
             String parsedPlaintext = "";
             for(String s : splitPlaintext){
-                if(s.toLowerCase().startsWith(" " + split[0] + "")){
-                    parsedPlaintext += s + "\n";
+                System.out.println(s);
+                i++;
+                if(s.toLowerCase().startsWith(" " + split[0] + "")) {
+                    entered++;
+                    if (s.length() > 40) {
+                        s = s.substring(0, 40);
+                    }
+                    //if (entered != 3) {
+                        //parsedPlaintext += s + splitPlaintext[i] + "\n";
+                        parsedPlaintext += s + "\n";
+                    //}
                 }
             }
             if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error";
@@ -43,10 +56,11 @@ public class GoogleSearch {
 
             // search one of the 3 restaurants and see if parsing is possible to get info
             splitPlaintext = parsed.split("\n");
-            url = "https://www.google.com/search" + "?q=" + splitPlaintext[1].replaceAll(" ", "");
+            url = "https://www.google.com/search" + "?q=" + splitPlaintext[0].replaceAll(" ", "+");
             try{
                 doc = Jsoup.connect(url).get();
-                plaintext = doc.text();
+                //doc = Jsoup.connect(url).get();
+                plaintext = doc.body().text();
             } catch(IOException e){
                 return "error";
             };
@@ -74,8 +88,24 @@ public class GoogleSearch {
                 Menu: ciro-ristorante-online-ordering-centreville.brygid.online
 
                 Phone: (703) 830-0003 Hours or services may differ Category: : Place name: : : : Website: : : Suggest an edit Unable to add this file...
-             */
-
+            */
+            // Algorithm:
+            //              1. Remove all strings up to and including "See photos" // done above
+            //              2. Name = Get string up to "Website"
+            //              3. Rating = Get string after "Saved save" and before "Google reviews"
+            //              4. Dollar signs = check $ count after
+            //              5. Everything else is already set up.
+            String allInfo = splitPlaintext[1];
+            String name = "Name: " + (allInfo.split("Directions"))[0].replaceAll("Website", "");
+            String ratings = "Ratings: " + (allInfo.split("Saved Save"))[1].split("Google reviews")[0].trim().substring(0,3) + "/5.0";
+            String dollars = (allInfo.split("Google reviews ")[1]);
+            dollars = "Cost: " + dollars.substring(0,5).replaceAll("[^$]", "");
+            String address = "Address: " + (allInfo.split("Address: "))[1].split("Hours:")[0];
+            //String hours = "Hours: Currently " + (allInfo.split("Hours: "))[1].split("Suggest an edit")[0].replaceAll(" ?", "");
+            String [] splitPhoneNum =  (allInfo.split("Phone: "))[1].split(" ");
+            String phone = "Phone: " + splitPhoneNum[0] + " " + splitPhoneNum[1];
+            parsed = name + "\n" + address + "\n" + ratings + "\n" + dollars + "\n" + phone;
+            System.out.println(parsed);
         } catch(IOException e) {
             return "error";
         };
