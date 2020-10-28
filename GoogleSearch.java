@@ -15,100 +15,93 @@ public class GoogleSearch {
     // Postcondition: Return parsed information, results from the search after parsing from html to plaintext,
     //                and parsing the plaintext to get relevant information, to the caller.
     public static String getResRec(String keywords){
-        // Setting up return value and the search query
-        String parsed = "";
+        // Setting up return value, processing value, and the getting the search results for the search query
+        String completeResult = "";
+        String totallyParsed = "";
         String plaintext = doSearch(keywords, 1, "HTMLtoPlainTextResRec");
 
         // If only 1 restaurant show up:
-        // If the plaintext contains "See photos" then we just send a string back to the caller
-        // ...
-        // end
+        // If "See photos" exists then that means that after that substring,
+        // there will be information regarding a restaurant, return that to the caller
+        if(plaintext.contains("See photos")){
+            return plaintext.split("See photos")[1];
+        }
 
+        // Don't think we need this algorithm, everything works very smoothly so far
         // If 3 restaurants show up:
         // If algorithm below results in no "See photos" being contained in the plaintext then use this algorithm:
         // Save info after "Hours or services may differ" that will be the name of the restaurant, but up to a "(" then remove the last token which would be the rating
+        // or Save info after "Hours"
         // Continue searching after that point after "Delivery" and same as above
         // Do 1 more time
         // Append the zip to each of those search queries
         // ...
         // end
 
-        // If no results from previous algorithm, then another possible algorithm: (almost complete)
-        // Parsing work: get addresses of restaurants (3 of them)
+        // If no results from previous algorithm (not needed?), then another possible algorithm: (complete)
+        // Parsing work: get addresses of restaurants (max 3 of them)
+        // After thorough analysis of countless parsed HTML source code for Google searches,
+        // using split here with the interpunct allows us to grab the address of the resulting restaurants that Google shows
+        // Example: "... · information · information · information · ..."
         String [] splitPlaintext = plaintext.split("\u00b7"); // "·" interpunct
 
-        int i = 0;
-        int entered = 0;
+        // Remove the ZIP code from the user input so that we can utilize the restaurant type/cuisine to find the addresses
+        String [] splitKeywords = keywords.split(" ");
+        String keywordsPart = "";
+        for(int i = 0; i < splitKeywords.length-1; i++){
+            keywordsPart = keywordsPart + " " + splitKeywords[i];
+        }
+
+        // Parse the plaintext to get the addresses for up to 3 restaurants that Google gave
+        // Sometimes there will be extra information past the address which cannot be removed, so cut the overall string
+        // If the length of the address itself is greater than 30 characters, then we cut it up to 30
+        // Why 30? After many tests and analyzing the countless addresses,
+        // 30 seems to be the sweet spot to cut such that the search for the new string will give useful search results
+        // Example: " Type/Cuisine Address ..."
         String parsedPlaintext = "";
         for(String s : splitPlaintext){
-            System.out.println(s);
-            i++;
-            if(s.toLowerCase().startsWith(" " + keywords.split(" ")[0] + "")) {
-                entered++;
-                if (s.length() > 40) {
-                    s = s.substring(0, 40);
+            if(s.toLowerCase().startsWith(keywordsPart + " ") || s.toLowerCase().startsWith(" " + "restaurant" + "")) {
+                if (s.replace(" Restaurant ", "").toLowerCase().replace(keywordsPart + " ", "").length() > 30) {
+                    if(s.toLowerCase().startsWith(" restaurant ")) {
+                        // Example: " Restaurant Address ..."
+                        s = "Restaurant" + s.substring(11, 30 + 11);
+                    }
+                    else{
+                        // Example: " Type/Cuisine Address ..."
+                        s = keywordsPart + " " + s.substring(keywordsPart.length() + 1, 30 + keywordsPart.length()+1);
+                    }
                 }
-                //if (entered != 3) {
-                    //parsedPlaintext += s + splitPlaintext[i] + "\n";
-                    parsedPlaintext += s + "\n";
-                //}
+                parsedPlaintext += s + "\n";
             }
         }
-            if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error";
-            parsed = parsedPlaintext; // set printing to those 3 res addresses
 
-            // search one of the 3 restaurants and see if parsing is possible to get info
-        plaintext = doSearch(parsed, 3, "restaurant");
-        /*try{
-            doc = Jsoup.connect(url).get();
-            plaintext = doc.body().text();
-        } catch(IOException e){
-            return "error";
-        };*/
+        // Used for debugging
+        // Writes the addresses of the 3 restaurants that Google showed:
+        if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error file";
 
-        //if(!writeFile(plaintext, "res1")) return "error";
+        // Addresses totally parsed
+        totallyParsed = parsedPlaintext;
 
-        // after checking file, it seems that it might be possible
-        splitPlaintext = plaintext.split("See photos");
-        // Then work with more delims. Can this be done? hmmm
-        /*
-            See photos
+        // Split the 3 addresses for each of them to be Google searched individually
+        String [] splitQuery = totallyParsed.split("\n");
 
-            Ciro's New York Pizza Website Directions Saved (0) Saved Save
+        // Do a search for up to 3 restaurants and see results for debugging purposes
+        for(int i = 0; i < splitQuery.length; i++) {
+            plaintext = doSearch(splitQuery[i], 3, "restaurant"+i);
+            splitPlaintext = plaintext.split("See photos");
 
-            4.5351 Google reviews $$Italian restaurant Order pickup New! View menu and order food Hungry? Try ordering online Order
-            delivery New York-style pizza & classic pastas are served in a wood-paneled space with burgundy accents. Dine-in· Takeout· No-contact delivery
+            // If "See photos" does not exist then from the countless analysis of Google's HTML,
+            // either this restaurant is inaccessible due to the way the plaintext turns out from the HTML parse
+            // or there is not enough information for this restaurant meaning that it should not be recommended anyways
+            if(splitPlaintext.length < 2) continue;
 
-            Located in: Centreville Crest Shopping Center
-
-            Address: 6067 Centreville Crest Ln, Centreville, VA 20121
-
-            Hours: Closed ? Opens 11AM Tuesday 11AM–11PM Wednesday 11AM–11PM Thursday 11AM–11PM Friday 11AM–11PM Saturday 11AM–11PM Sunday 11AM–10PM Monday 11AM–11PM
-
-            Suggest an edit Unable to add this file. Please check that it is a valid photo.
-
-            Menu: ciro-ristorante-online-ordering-centreville.brygid.online
-
-            Phone: (703) 830-0003 Hours or services may differ Category: : Place name: : : : Website: : : Suggest an edit Unable to add this file...
-            */
-            // Algorithm:
-            //              1. Remove all strings up to and including "See photos" // done above
-            //              2. Name = Get string up to "Website"
-            //              3. Rating = Get string after "Saved save" and before "Google reviews"
-            //              4. Dollar signs = check $ count after
-            //              5. Everything else is already set up.
-            String allInfo = splitPlaintext[1];
-            String name = "Name: " + (allInfo.split("Directions"))[0].replaceAll("Website", "");
-            String ratings = "Ratings: " + (allInfo.split("Saved Save"))[1].split("Google reviews")[0].trim().substring(0,3) + "/5.0";
-            String dollars = (allInfo.split("Google reviews ")[1]);
-            dollars = "Cost: " + dollars.substring(0,5).replaceAll("[^$]", "");
-            String address = "Address: " + (allInfo.split("Address: "))[1].split("Hours:")[0];
-            //String hours = "Hours: Currently " + (allInfo.split("Hours: "))[1].split("Suggest an edit")[0].replaceAll(" ?", "");
-            String [] splitPhoneNum =  (allInfo.split("Phone: "))[1].split(" ");
-            String phone = "Phone: " + splitPhoneNum[0] + " " + splitPhoneNum[1];
-            parsed = name + "\n" + address + "\n" + ratings + "\n" + dollars + "\n" + phone;
-            System.out.println(parsed);
-        return parsed;
+            // The required information is always after "See photos" so setting/appending the 1th index-ed string for return
+            completeResult = completeResult + " XA Potential RestaurantX " + splitPlaintext[1] + "\n\n";
+        }
+        // Used for debugging
+        // Writes the information for the restaurants plus random extra junk:
+        if(!writeFile(completeResult, "TheReturningInfo")) return "error file";
+        return completeResult;
     }
 
     //
@@ -127,22 +120,24 @@ public class GoogleSearch {
         // Setup for Restaurant Recommendation Search:
         if(key == 1) {
             String [] splitQuery = query.split(" ");
-            url = "https://www.google.com/search" + "?q=" + splitQuery[0] + "%20" + "restaurants%20near%20" + splitQuery[1];
-            //String url = "https://www.google.com/search" + "?q=" + "\"" + splitQuery[0] + "\"%20" + "restaurants%20near%20\"" + splitQuery[1] + "\"";
+            String queryPart = "";
+            for(int i = 0; i < splitQuery.length-1; i++){
+                queryPart = queryPart + "+" + splitQuery[i];
+            }
+            url = "https://www.google.com/search" + "?q=" + queryPart + "%20" + "restaurants%20near%20" + splitQuery[splitQuery.length-1];
         }
 
         // Setup for Recently Opened Restaurant Search:
         else if(key == 2){
             String [] splitQuery = query.split(" ");
             url = "https://www.google.com/search" + "?q=" + "recently%20opened%restaurants%20near%20" + splitQuery[0];
-            //String url = "https://www.google.com/search" + "?q=" + "restaurants%20near%20\"" + splitQuery[0] + "\"";
         }
 
         // Setup for Individual Restaurant Search Based on Address and Cuisine/Type:
         else if(key == 3){
-            String [] splitQuery = query.split("\n");
-            url = "https://www.google.com/search" + "?q=" + splitQuery[0].replaceAll(" ", "+") + "%20restaurant";
+            url = "https://www.google.com/search" + "?q=" + query.replaceAll(" ", "+") + "%20restaurant";
         }
+        // System.out.println(url); Here for debugging
         String plaintext = "";
         try {
             // Get the HTML source with the query (url), then parse to plaintext
@@ -174,5 +169,4 @@ public class GoogleSearch {
         }
         return true;
     }
-
 }
