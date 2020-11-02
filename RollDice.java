@@ -13,6 +13,9 @@ public class RollDice {
      * @return dice
      */
     public static int rollDice(int numSides){
+        if(numSides <= 0){
+            return 0;
+        }
         int dice = (int)(Math.random()*numSides) + 1;
         return dice;
     }
@@ -25,6 +28,11 @@ public class RollDice {
      * @return options
      */
     public static List<String> getOptions(String input){
+        // Check input validity
+        if(input == null || input.length() == 0 || !input.contains("!choose:")){
+            // The input string is invalid
+            return null;
+        }
         // The input will have the format "!choose: [a1] [a2]...[an]", so we need to remove the "!choose:"
         String tempInput = input.substring(input.indexOf(":")+1);
         List<String> options = new ArrayList<String>();
@@ -115,6 +123,12 @@ public class RollDice {
      * @param length
      */
     protected static void wait(int length){
+        if(length <= 0){
+            return;
+        }
+        if(length > 1500){
+            length = 1500; // The max allowable length will be 1500 milliseconds
+        }
         try
         {
             Thread.sleep(length);

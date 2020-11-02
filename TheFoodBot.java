@@ -1,4 +1,4 @@
-package com.github.assemblingpanda;
+package com.github.jmbidinger;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
@@ -10,10 +10,12 @@ public class TheFoodBot {
         String dice = "!roll dice";
         String rollSomeDice = "!roll some dice";
         String rollNSided = "!roll D";
+        String helpPrompt = "It seems like you are calling for us, but we cannot do whatever it is that you are asking of us.\n" +
+                "Refer to our help menu by typing \"!Help Menu\" to see what commands are available.";
 
         // TheFoodBot's token
         String token = "NzY3OTU0NjgzNjQxNzI0OTU4.X45biA.eZt6cUF59N0JN3cItm73elGVCDY";
-		
+
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
 
         // The output message will be changed according to the inputs from the user
@@ -22,7 +24,7 @@ public class TheFoodBot {
         api.addMessageCreateListener(event -> {
             String messageOriginal = event.getMessageContent();
             String messageLC = messageOriginal.toLowerCase();
-			
+
             if(event.getMessageAuthor().isBotUser() || (messageLC.length() < 1) || (messageLC.charAt(0) != '!')){
                 outputMessage.set("");
             }
@@ -44,29 +46,32 @@ public class TheFoodBot {
                 // wait(100);
                 event.getChannel().sendMessage("https://thumbs.gfycat.com/SecondTartCygnet-size_restricted.gif");
                 String choice = RollDice.rollForChoice(RollDice.getOptions(messageOriginal));
-                // wait(100);
-                outputMessage.set(choice + ", I choose you!");
-                //event.getChannel().sendMessage(choice+", I choose you!");
+                if(choice == null){
+                    event.getChannel().sendMessage(helpPrompt);
+                }
+                else {
+                    // wait(100);
+                    outputMessage.set(choice + ", I choose you!");
+                }
             }
-			
+
             else if(messageLC.contains(dice.toLowerCase()) || messageLC.contains(rollSomeDice.toLowerCase())
                     || messageLC.contains(rollNSided.toLowerCase())
                     || messageLC.contains("roll a d".toLowerCase()) || messageLC.contains("roll me some dice")){
                 int diceRoll;
-                int nSides = 6;
+                int nSides;
                 if((messageLC.contains(rollNSided.toLowerCase()) && !messageLC.contains(dice.toLowerCase()))
                         || messageLC.contains("roll a d".toLowerCase())){
-                    int tempNumber = RollDice.getNumber(messageLC);
-                    System.out.println(""+tempNumber);
-                    if(tempNumber > 0){
-                        nSides = tempNumber;
+                    nSides = RollDice.getNumber(messageLC);
+                    if(nSides > 0){
+                        diceRoll = RollDice.rollDice(nSides);
+                        outputMessage.set(diceRoll+"");
                     }
                     else{
-                        outputMessage.set("No can do, Imma roll a D6 instead");
+                        outputMessage.set("Sorry, I can't roll dice with only "+nSides+" sides");
                     }
                 }
-                diceRoll = RollDice.rollDice(nSides);
-                outputMessage.set(diceRoll+"");
+
             }
 
             else if (event.getMessageContent().equalsIgnoreCase("!Help Menu")) {
@@ -76,8 +81,7 @@ public class TheFoodBot {
             }
 
             else {
-                event.getChannel().sendMessage("It seems like you are calling for us, but we cannot do whatever it is that you are asking of us.\n" +
-                        "Refer to our help menu by typing \"!Help Menu\" to see what commands are available.");
+                event.getChannel().sendMessage(helpPrompt);
             }
 
             //  wait(50);
