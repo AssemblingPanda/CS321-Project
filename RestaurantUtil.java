@@ -3,7 +3,7 @@ package com.github.huitk;
 public class RestaurantUtil {
 
     //Get restaurant recommendations
-	//GoogleSearch's getResRec() calls has a large string with delimiter between each restaurant.
+    //GoogleSearch's getResRec() calls has a large string with delimiter between each restaurant.
     //Delimiter is "XA Potential RestaurantX".
     //When using split, array index 0 is always empty so restaurant array is -1 the split array.
     //For each set of restaurant information batch in token array, parse and get Restaurant object back.
