@@ -64,14 +64,14 @@ public class RestaurantUtil {
         return recommendations;
     }
 	
-	//Get a recently opened restaurant
-	public static Restaurant findRecentlyOpened(){
+    //Get a recently opened restaurant
+    public static Restaurant findRecentlyOpened(){
         Restaurant recentlyOpened = new Restaurant();
         return recentlyOpened;
     }
 	
-	//Parse allInfo and return Restaurant object with info
-	private static Restaurant getSetInformation(String allInfo){
+    //Parse allInfo and return Restaurant object with info
+    private static Restaurant getSetInformation(String allInfo){
         return new Restaurant();
-	}
+    }
 }
