@@ -31,15 +31,25 @@ public class TheFoodBot {
 
             else if (messageLC.contains("!rr: ")) { // RR placeholder for Restaurant Recommendation
                 messageLC = messageLC.replaceAll("!rr: \\[", "").replaceAll("\\[", "").replaceAll("]", "");
-                event.getChannel().sendMessage(messageLC);
-                String recs = GoogleSearch.getResRec(messageLC);
-                //RestaurantRecommendations.getRes(recs);
-                event.getChannel().sendMessage("Here are some restaurant recommendations:");
-                event.getChannel().sendMessage(recs);
+                Restaurant [] parsedRecs = RestaurantUtil.getRecommendations(messageLC);
+                String ret = "";
+                for(int i = 0; i < parsedRecs.length; i++){
+                    ret += parsedRecs[i].toString() + "\n";
+                }
+                if(ret.equals("")){
+                    ret = "No recommendable restaurants found in your area :(\n";
+                }
+                else{
+                    ret = "Here are some restaurant recommendations:\n" + ret;
+                }
+                event.getChannel().sendMessage(ret);
             }
 
             else if (messageLC.contains("!rn: ")) { // RN placeholder for Restaurant Notification
-                event.getChannel().sendMessage("Empty Right Now");
+                messageLC = messageLC.replaceAll("!rn: \\[", "").replaceAll("\\[","").replaceAll("]", "");
+                String recentlyOpened = GoogleSearch.getRecentlyOpenedRes(messageLC);
+                event.getChannel().sendMessage("Here is one recently opened restaurant:");
+                event.getChannel().sendMessage(recentlyOpened);
             }
 
             else if(messageLC.contains("!choose:")){
@@ -75,9 +85,9 @@ public class TheFoodBot {
             }
 
             else if (event.getMessageContent().equalsIgnoreCase("!Help Menu")) {
-                event.getChannel().sendMessage("!rr: [cuisine/type of restaurant] [Zip Code]\n" +
+                event.getChannel().sendMessage("!rr: [cuisine/type of restaurant] [ZIP Code]\n" +
                         "!rn: [ZIP Code]\n" +
-                        "!choose: [name1], [name2], [name3],...,[name30]");
+                        "!choose: [name1] [name2] [name3]...[name30]");
             }
 
             else {
