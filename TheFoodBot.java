@@ -43,11 +43,21 @@ public class TheFoodBot {
 
             else if (messageLC.contains("!rr: ")) { // RR placeholder for Restaurant Recommendation
                 messageLC = messageLC.replaceAll("!rr: \\[", "").replaceAll("\\[", "").replaceAll("]", "");
-                event.getChannel().sendMessage(messageLC);
-                String recs = GoogleSearch.getResRec(messageLC);
-                //RestaurantRecommendations.getRes(recs);
-                event.getChannel().sendMessage("Here are some restaurant recommendations:");
-                event.getChannel().sendMessage(recs);
+                Restaurant [] parsedRecs = RestaurantUtil.getRecommendations(messageLC);
+                if(parsedRecs == null){
+                    event.getChannel().sendMessage("No recommendable restaurants found in your area :(\n");
+                }
+                String ret = "";
+                for(int i = 0; i < parsedRecs.length; i++){
+                    ret += parsedRecs[i].toString() + "\n";
+                }
+                if(ret.equals("")){
+                    ret = "No recommendable restaurants found in your area :(\n";
+                }
+                else{
+                    ret = "Here are some restaurant recommendations:\n" + ret;
+                }
+                event.getChannel().sendMessage(ret);
             }
 
             else if (messageLC.contains("!rn: ")) { // RN placeholder for Restaurant Notification
