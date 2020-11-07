@@ -2,7 +2,6 @@ package com.github.huitk;
 //RestaurantUtil class
 public class RestaurantUtil {
 
-    //Get restaurant recommendations
     //GoogleSearch's getResRec() calls has a large string with delimiter between each restaurant.
     //Delimiter is "XA Potential RestaurantX".
     //When using split, array index 0 is always empty so restaurant array is -1 the split array.
@@ -63,7 +62,7 @@ public class RestaurantUtil {
         }
         return recommendations;
     }
-    
+
     //Get a recently opened restaurant
     //GoogleSearch's getRecentlyOpenedRes() calls has a large string with delimiter between each restaurant.
     //Delimiter is "XA Potential RestaurantX".
@@ -94,9 +93,101 @@ public class RestaurantUtil {
         int randomIndex = (int)(Math.random()*2);
         return recentlyOpenedRes[randomIndex];
     }
-    
-    //Parse allInfo and return Restaurant object with info
+
+    //Parse the string allInfo
+    //allInfo should contain all the information for a single restaurant.
+    //Make and set values in the Restaurant object to return
+    //If nothing can be found from allInfo, then return null
     private static Restaurant getSetInformation(String allInfo){
-        return new Restaurant();
+        //if the allInfo has this, then it is not restaurant anymore
+        if(allInfo.contains("Temporarily closed") || allInfo.contains("Permanently closed")){
+            return null;
+        }
+        //this is sometimes before name
+        allInfo = allInfo.replace("See outside", "");
+        Restaurant restaurant = new Restaurant();
+        String[] tokens = null;
+        //split after where name comes up, try all possible appearances
+        if(allInfo.contains("Website Directions Saved")){
+            tokens = allInfo.split("Website Directions Saved");
+        }
+        else if(allInfo.contains("Directions Saved")){
+            tokens = allInfo.split("Directions Saved");
+        }
+        else if(allInfo.contains("Website Directions")){
+            tokens = allInfo.split("Website Directions");
+        }
+        else if(allInfo.contains("Website Saved")){
+            tokens = allInfo.split("Website Saved");
+        }
+        else if(allInfo.contains("Directions")){
+            tokens = allInfo.split("Directions");
+        }
+        else if(allInfo.contains("Website")){
+            tokens = allInfo.split("Website");
+        }
+        else if(allInfo.contains("Saved")){
+            tokens = allInfo.split("Saved");
+        }
+        if((tokens == null) || (tokens.length < 2)){
+            return null;
+        }
+        //split string
+        restaurant.setName(tokens[0].trim());
+        //get number of reviews, ratings, and cost, split here
+        //tokens[0] has ratings and reviews, and tokens[1] has the rest
+        if(tokens[1].contains("Google reviews")) {
+            tokens = tokens[1].split("Google reviews");
+            String[] tmp = tokens[0].split("Save ");
+            char[] ratingsAndReviews = tmp[1].replaceAll(" ", "").toCharArray();
+            if (ratingsAndReviews.length > 1) {
+                //means there is rating
+                if (tmp[1].contains(".")) {
+                    restaurant.setNumStars("" + ratingsAndReviews[0] + ratingsAndReviews[1] + ratingsAndReviews[2]);
+                    if (ratingsAndReviews.length > 3) {
+                        String numberOfReviews = "";
+                        for (int i = 3; i < ratingsAndReviews.length; i++) {
+                            numberOfReviews = numberOfReviews + ratingsAndReviews[i];
+                        }
+                        restaurant.setNumReviews(numberOfReviews);
+                    }
+                }
+                //no rating, only reviews
+                else {
+                    String numberOfReviews = "";
+                    for (int i = 0; i < ratingsAndReviews.length; i++) {
+                        numberOfReviews = numberOfReviews + ratingsAndReviews[i];
+                    }
+                    restaurant.setNumReviews(numberOfReviews);
+                }
+            }
+            //get cost
+            restaurant.setDollars(tokens[1].substring(0, 7).replaceAll("[^$]", ""));
+        }
+        //get address
+        if(!tokens[1].contains("Address: ")){
+            return null;
+        }
+        tokens = tokens[1].split("Address: ");
+        //tokens[1] has address and rest of info, including hours
+        tokens = tokens[1].split("Hours: ");
+        //tokens[0] has address, tokens[1] has hours and rest of info
+        restaurant.setAddress(tokens[0]);
+        String hoursInfo = tokens[1].split("Suggest an edit")[0];
+        //clean hoursInfo here
+        restaurant.setOperationalHours(hoursInfo);
+        if(tokens[1].contains("Menu: ")) {
+            tokens = tokens[1].split("Menu: ");
+            int index = tokens[1].indexOf(".com");
+            restaurant.setWebsite(tokens[1].substring(0,index+4));
+        }
+        if(tokens[1].contains("Phone: ")) {
+            tokens = tokens[1].split("Phone: ");
+            tokens = tokens[1].split(" ");
+            if(tokens[0].contains("(")) {
+                restaurant.setPhoneNumber("" + tokens[0] + " " + tokens[1]);
+            }
+        }
+        return restaurant;
     }
 }
