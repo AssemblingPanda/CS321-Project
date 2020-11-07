@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RollDice {
+    // The maximum number of options that can be chosen from
+    private static final int MAX_CHOICES = 15;
 
     /**
      * This function will return a random integer between 1 and numSides
@@ -69,13 +71,11 @@ public class RollDice {
     public static String rollForChoice(List<String> options){
         String choice = null;
         int dice;
-        if(options == null){
-            System.out.println("Error, the string array of choices was null!");
+        if(options == null || options.size() > MAX_CHOICES){
             return choice;
         }
         dice = rollDice(options.size());
         if(dice < 1){
-            System.out.println("Error: The dice roll returned an invalid number");
             return choice;
         }
         if(options.size() < 1){ // The list has only 1 value in it, so that will automatically be returned
@@ -126,7 +126,7 @@ public class RollDice {
         if(length <= 0){
             return;
         }
-        if(length > 1500){
+        if(length > 3000){
             length = 1500; // The max allowable length will be 1500 milliseconds
         }
         try
@@ -137,5 +137,13 @@ public class RollDice {
         {
             Thread.currentThread().interrupt();
         }
+    }
+
+    /**
+     * This is an accessor which returns the maximum allowable number of choices for the rollForChoice method.
+     * @return MAX_CHOICES
+     */
+    public static int getMaxChoices(){
+        return MAX_CHOICES;
     }
 }
