@@ -75,12 +75,9 @@ public class GoogleSearch {
                 parsedPlaintext += s + "\n";
             }
         }
-
-        /*
         // Used for debugging
         // Writes the addresses of the restaurants that Google showed:
-        if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error file";
-        */
+        //if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error file";
 
         // Addresses totally parsed
         totallyParsed = parsedPlaintext;
