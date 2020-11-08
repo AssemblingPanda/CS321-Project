@@ -2,7 +2,9 @@ package com.github.jmbidinger;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
+import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.Message;
+import org.javacord.api.entity.server.Server;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -19,7 +21,8 @@ public class TheFoodBot {
         String helpMenu = "!rr: [cuisine/type of restaurant] [Zip Code]\n" +
                 "!rn: [ZIP Code]\n" +
                 "!choose: [name1] [name2] [name3]...[name30]";
-
+        String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !rn: [ZIP code]";
+        
         // TheFoodBot's token
         String token = "NzU4MDM4OTU5MTAzMjc5MTk2.X2pIyw.yG10-910eOE6QF31EkNyxvJ32L4";
 
@@ -28,9 +31,23 @@ public class TheFoodBot {
         // The output message will be changed according to the inputs from the user
         AtomicReference<String> outputMessage = new AtomicReference<>("");
 
-        // Sends a notification to the general chat channel upon startup
+        // For every channel that this bot is in:
+        // Create a new "restaurant-notifications" channel, if channel already exists, do not create a channel
+        // Send in a notification to the "restaurant-notifications" channel
         if(api.hasAllUsersInCache()){
-            api.getServerById("747981812407468042").get().getTextChannelsByName("general").get(0).sendMessage("Would you like to get some restaurant notifications? Enter !rn: [ZIP code]");
+            Server [] servers = api.getServers().toArray(new Server[api.getServers().size()]);
+            for(int i = 0; i < servers.length; i++){
+                String serverId = servers[i].getIdAsString();
+                Server ithServer = api.getServerById(serverId).get();
+                if(ithServer.canYouCreateChannels()) {
+                    List<ServerTextChannel> textChannels = ithServer.getTextChannelsByNameIgnoreCase("restaurant-notifications");
+                    if(textChannels.size() > 0) {
+                        textChannels.get(0).sendMessage(notificationsPrompt);
+                    } else {
+                        ithServer.createTextChannelBuilder().setName("restaurant notifications").create().join().sendMessage(notificationsPrompt);
+                    }
+                }
+            }
         }
 
         api.addMessageCreateListener(event -> {
