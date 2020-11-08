@@ -76,9 +76,11 @@ public class GoogleSearch {
             }
         }
 
+        /*
         // Used for debugging
         // Writes the addresses of the restaurants that Google showed:
         if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error file";
+        */
 
         // Addresses totally parsed
         totallyParsed = parsedPlaintext;
@@ -101,12 +103,13 @@ public class GoogleSearch {
         }
         // Used for debugging
         // Writes the information for the restaurants plus random extra junk:
-        if(!writeFile(completeResult, "TheReturningInfo")) return "error file";
+        //if(!writeFile(completeResult, "TheReturningInfo")) return "error file";
+
         return completeResult;
     }
 
     // Google Search Result Web Scraper for Recently Opened Restaurants
-    // Precondition: keywords will have to be "ZIP code"
+    // Precondition: keyword will have to be "ZIP code"
     // Postcondition: Return parsed information, results from the search after parsing from html to plaintext,
     //                and parsing the plaintext to get relevant information, to the caller
     public static String getRecentlyOpenedRes(String keyword){
@@ -158,10 +161,9 @@ public class GoogleSearch {
                 parsedPlaintext += temp + " " + keyword + "\n";
             }
         }
-
         // Used for debugging
         // Writes the addresses of up the restaurants that Google showed:
-        if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error file";
+        //if(!writeFile(parsedPlaintext, "PlaintextParsed")) return "error file";
 
         // Addresses totally parsed
         totallyParsed = parsedPlaintext;
@@ -171,7 +173,7 @@ public class GoogleSearch {
 
         // Do a search for up to 2 restaurants and see results for debugging purposes
         for(int i = 0; i < splitQuery.length; i++) {
-            plaintext = doSearch(splitQuery[i], 3, "restaurant"+i);
+            plaintext = doSearch(splitQuery[i] + " " + keyword, 3, "restaurant"+i);
             splitPlaintext = plaintext.split("See photos");
 
             // If "See photos" does not exist then from the countless analysis of Google's HTML,
@@ -184,7 +186,7 @@ public class GoogleSearch {
         }
         // Used for debugging
         // Writes the information for the restaurants plus random extra junk:
-        if(!writeFile(completeResult, "TheReturningInfo")) return "error file";
+        //if(!writeFile(completeResult, "TheReturningInfo")) return "error file";
         return completeResult;
     }
 
@@ -225,13 +227,14 @@ public class GoogleSearch {
 
             // For debugging purposes
             // Write the plaintext to a new file to examine on how to parse/get further information
-            if (!writeFile(plaintext, fileName)) return "error file";
+            //if (!writeFile(plaintext, fileName)) return "error file";
         } catch(IOException e){
             return "error internet";
         }
         return plaintext;
     }
 
+    /*
     // Used for debugging for thinking about ways to parse
     // Takes the string to write and the file to write on
     private static Boolean writeFile(String s, String fileName){
@@ -248,4 +251,5 @@ public class GoogleSearch {
         }
         return true;
     }
+    */
 }
