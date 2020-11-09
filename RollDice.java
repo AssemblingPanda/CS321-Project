@@ -46,13 +46,17 @@ public class RollDice {
             if(tempInput.charAt(i) == '['){ // If the current character is '[', then skip this iteration
                 continue;
             }
-            if(tempInput.charAt(i) == ']'){
+            if(tempInput.charAt(i) == ','){
                 //The closing bracket has been reached, so the current substring is complete
                 // Add the current substring to the list, then result the substring for the next iteration
                 if(i > 1){
                     options.add(name.toString());
                     name = new StringBuilder("");
                 }
+            }
+            else if(tempInput.charAt(i) == ']'){
+                // The final choice has been read in, so stop the loop and return the list of options
+                break;
             }
             else{ //The closing bracket has not been reached, so append the current character to the current substring
                 name.append(tempInput.charAt(i));

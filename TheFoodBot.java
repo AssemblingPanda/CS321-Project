@@ -16,15 +16,34 @@ public class TheFoodBot {
         String dice = "!roll dice";
         String rollSomeDice = "!roll some dice";
         String rollNSided = "!roll D";
+        String restaurantRestrictions = "buffet, asian, bar, ayce, sports bar, pub, korean, steak, barbeque, " +
+                "panda express, chinese, bagels, ice cream, pizza, italian, irish, afghani, mediterranean";
         String helpPrompt = "It seems like you are calling for us, but we cannot do whatever it is that you are asking of us.\n" +
                 "Refer to our help menu by typing \"!Help Menu\" to see what commands are available.";
-        String helpMenu = "!rr: [cuisine/type of restaurant] [Zip Code]\n" +
-                "!rn: [ZIP Code]\n" +
-                "!choose: [name1] [name2] [name3]...[name30]";
-        String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !rn: [ZIP code]";
-        
-        // TheFoodBot's token
+        String helpMenu = "Here is the help menu:\n\n" +
+                "These are the commands that we have available for you:\n" +
+                "!rec Cuisine/Types of Restaurant, ZIP Code\n" +
+                "!new ZIP Code\n" +
+                "!choose: [name1, name2, name3, ..., name30]\n\n" +
+                "Choose from these Types of Restaurant:\n" +restaurantRestrictions;
+
+        String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !new ZIP code\n"+
+                "If not, then check out our help menu to get you started if you are new! Enter !help menu";
+        String messageNoRecent = "No recently opened restaurants found in your area :disappointed:\n";
+        String messageNoRecommend = "No recommendable restaurants found in your area :disappointed:\n";
+        String messageNoOptions = "It looks like there are not any restaurants for me to choose from. " +
+                "Please try again or type \"!Help Menu\" for more information";
+        // Link to a humorous image to be displayed when the user has not entered enough information to select a choice from
+        String imageLinkNoOptions = "https://lh3.googleusercontent.com/proxy/mKojzvEiUQN-hGlZJUCEY_2PLlbg7J0GOL28DvL3S7sCZCefJgRpvkzl2a9xJor5JdDryTYmzJ-PxJRaGThHM1H-yQp_y21CUfzEiaX2-YCpRLfLb5UJuba4PKXctmL4baEOEHJT9O3f";
+        // Link to a gif of rolling dice to be displayed while the bot is making a selection
+        String imageLinkDice = "https://thumbs.gfycat.com/SecondTartCygnet-size_restricted.gif";
+
+
+        // TheFoodBot's token:
+        //String token = "NzY3OTU0NjgzNjQxNzI0OTU4.X45biA.eZt6cUF59N0JN3cItm73elGVCDY";
+        // My bot's token:
         String token = "NzU4MDM4OTU5MTAzMjc5MTk2.X2pIyw.yG10-910eOE6QF31EkNyxvJ32L4";
+        //String token = "NzU4MDA2ODYxMTA1NTk0NDA5.X2oq5g.Wr6jRDZ_Zer4wbCOzPRbUxupqx4";
 
         DiscordApi api = new DiscordApiBuilder().setToken(token).login().join();
 
@@ -58,31 +77,46 @@ public class TheFoodBot {
                 outputMessage.set("");
             }
 
-            else if (messageLC.contains("!rr: ")) { // RR placeholder for Restaurant Recommendation
-                messageLC = messageLC.replaceAll("!rr: \\[", "").replaceAll("\\[", "").replaceAll("]", "");
-                Restaurant [] parsedRecs = RestaurantUtil.getRecommendations(messageLC);
-                if(parsedRecs == null){
-                    event.getChannel().sendMessage("No recommendable restaurants found in your area :(\n");
+            else if (messageLC.matches("[!][r][e][c][ ][a-zA-Z0-9 ]+[,][ ][0-9]+")) {
+                // Get the string into the proper format to be parsed
+                messageLC = messageLC.replace("!rec ", "").replace(",", "");
+                // Separate the restaurant type from the zipcode to check whether or not the restaurant type
+                // is in the list allowed by the user restrictions.
+                String restaurantType = messageLC.substring(0, messageLC.lastIndexOf(' '));
+                // The type of cuisine/restaurant entered by the user is not one of the allowed options,
+                // so display a useful and detailed explanation to the user
+                if (!restaurantRestrictions.contains(restaurantType)) {
+                    // Find the first latter of the restaurant type, which is in lowercase, and convert it to upper case
+                    // so that it looks better to the user when it is displayed to the screen
+                    char firstLetter = restaurantType.charAt(0);
+                    restaurantType = restaurantType.replace(firstLetter, (char)(firstLetter-32));
+                    outputMessage.set("Unfortunately, "+restaurantType+" is not one of the recognized types of cuisine. " +
+                            "You can search for restaurants from the following list:\n" + restaurantRestrictions);
                 }
-                String ret = "";
-                for(int i = 0; i < parsedRecs.length; i++){
-                    ret += parsedRecs[i].toString() + "\n";
+                else {
+                    Restaurant[] parsedRecs = RestaurantUtil.getRecommendations(messageLC);
+                    if (parsedRecs == null) {
+                        event.getChannel().sendMessage(messageNoRecommend);
+                    }
+                    String ret = "";
+                    for (int i = 0; i < parsedRecs.length; i++) {
+                        ret += parsedRecs[i].toString() + "\n";
+                    }
+                    if (ret.equals("")) {
+                        ret = messageNoRecommend;
+                    } else {
+                        ret = "Here are some restaurant recommendations:\n" + ret;
+                    }
+                    event.getChannel().sendMessage(ret);
                 }
-                if(ret.equals("")){
-                    ret = "No recommendable restaurants found in your area :(\n";
-                }
-                else{
-                    ret = "Here are some restaurant recommendations:\n" + ret;
-                }
-                event.getChannel().sendMessage(ret);
             }
 
-            else if (messageLC.contains("!rn: ")) { // RN placeholder for Restaurant Notification
-                messageLC = messageLC.replaceAll("!rn: \\[", "").replaceAll("\\[","").replaceAll("]", "");
+            else if (messageLC.matches("[!][n][e][w][ ][0-9]+")) {
+                messageLC = messageLC.replace("!new ", "");
                 Restaurant newRestaurant = RestaurantUtil.findRecentlyOpened(messageLC);
                 String ret = "";
                 if(newRestaurant == null){
-                    ret = "No recently opened restaurants found in your area :<\n";
+                    ret = messageNoRecent;
                 }
                 else{
                     ret = "Here is one recently opened restaurant:\n" + newRestaurant.toString();
@@ -104,16 +138,15 @@ public class TheFoodBot {
                     else {
                         if(options != null && options.size() == 0){
                             try{
-                                toDelete = event.getChannel().sendMessage("https://lh3.googleusercontent.com/" +
-                                        "proxy/CPvahwr0k9vNpbwwxt8FE7BrpkAxsfYE5U-Z5GL5N8HTXk1vSwWhKu6sFdbJjzhL12HF0Y" +
-                                        "ZcrKByNywAU_zWMtwzxxaxSREsL2JQEV39RuDailtOY_rP14BMhgm3NrvoGjGFpWfR5cbE").get();
+                                // Briefly display a funny image to the screen indicating that
+                                // the user did not enter enough information for the bot to make a selection
+                                toDelete = event.getChannel().sendMessage(imageLinkNoOptions).get();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             } catch (ExecutionException e) {
                                 e.printStackTrace();
                             }
-                            event.getChannel().sendMessage("It looks like there are not any restaurants for me to choose from. " +
-                                    "Please try again or type \"!Help Menu\" for more information");
+                            event.getChannel().sendMessage(messageNoOptions);
                             RollDice.wait(3000);
                             event.getChannel().deleteMessages(toDelete);
                         }
@@ -124,7 +157,7 @@ public class TheFoodBot {
                 }
                 else {
                     try {
-                        toDelete = event.getChannel().sendMessage("https://thumbs.gfycat.com/SecondTartCygnet-size_restricted.gif").get();
+                        toDelete = event.getChannel().sendMessage(imageLinkDice).get();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (ExecutionException e) {
