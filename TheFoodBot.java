@@ -98,16 +98,19 @@ public class TheFoodBot {
                     if (parsedRecs == null) {
                         event.getChannel().sendMessage(messageNoRecommend);
                     }
-                    String ret = "";
-                    for (int i = 0; i < parsedRecs.length; i++) {
-                        ret += parsedRecs[i].toString() + "\n";
+                    else {
+                        String ret = "";
+                        for (int i = 0; i < parsedRecs.length; i++) {
+                            ret += parsedRecs[i].toString() + "\n";
+                        }
+                        if (ret.equals("")) {
+                            ret = messageNoRecommend;
+                        }
+                        else {
+                            ret = "Here are some restaurant recommendations:\n" + ret;
+                        }
+                        event.getChannel().sendMessage(ret);
                     }
-                    if (ret.equals("")) {
-                        ret = messageNoRecommend;
-                    } else {
-                        ret = "Here are some restaurant recommendations:\n" + ret;
-                    }
-                    event.getChannel().sendMessage(ret);
                 }
             }
 
