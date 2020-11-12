@@ -55,9 +55,9 @@ public class Restaurant {
 		return numStars;
 	}
 
-	// Check to make sure numStars is all numbers
+	// Check to make sure numStars is all numbers, plus the " . "
 	public void setNumStars(String numStars) {
-		if(numStars.equals("")) return;
+		if(numStars.equals("") || !(numStars.matches("[0-9][.][0-9]"))) return;
 		this.numStars = numStars;
 	}
 
@@ -78,9 +78,9 @@ public class Restaurant {
 		return numReviews;
 	}
 
-	// Check to make sure numReviews is all numbers
+	// Check to make sure numReviews is all numbers, plus the " , "
 	public void setNumReviews(String numReviews) {
-		if(numReviews.equals("")) return;
+		if(numReviews.equals("") || !(numReviews.matches("[0-9,]+"))) return;
 		this.numReviews = numReviews;
 	}
 
@@ -90,7 +90,7 @@ public class Restaurant {
 
 	// Check for all numbers, -, (, )
 	public void setPhoneNumber(String phoneNumber) {
-		if(phoneNumber.equals("")) return;
+		if(phoneNumber.equals("") || !(numReviews.matches("[(][0-9][0-9][0-9][)][ ][0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]"))) return;
 		this.phoneNumber = phoneNumber;
 	}
 
@@ -99,7 +99,7 @@ public class Restaurant {
 	}
 
 	public void setWebsite(String website) {
-		if(website.equals("")) return;
+		if(website.equals("") || !(website.contains(".com"))) return;
 		this.website = website;
 	}
 
@@ -107,9 +107,19 @@ public class Restaurant {
 		return operationalHours;
 	}
 
-	// make it look better, format the structure
+	// Strutured formatting for operational hours and additional information
 	public void setOperationalHours(String operationalHours) {
 		if(operationalHours.equals("")) return;
+		operationalHours = operationalHours.replace("More hours", "\nMore hours:")
+				.replace("Delivery", "\nDelivery")
+				.replace("Takeout", "\nTakeout")
+				.replace("Monday", "\nMonday")
+				.replace("Tuesday", "\nTuesday")
+				.replace("Wednesday", "\nWednesday")
+				.replace("Thursday", "\nThursday")
+				.replace("Friday", "\nFriday")
+				.replace("Saturday", "\nSaturday")
+				.replace("Sunday", "\nSunday");
 		this.operationalHours = operationalHours;
 	}
 
@@ -131,7 +141,7 @@ public class Restaurant {
 				+ "Cost: " + dollars + "\n"
 				+ "Phone Number: " + phoneNumber + "\n"
 				+ "Website: " + website + "\n"
-				+ "Today's operational Hours: " + operationalHours + "\n";
+				+ "Today's Operational Hours: " + operationalHours + "\n";
 	}
 	
 	//Two restaurants are equals if and only if they have the same name and same address
