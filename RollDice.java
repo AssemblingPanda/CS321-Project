@@ -6,7 +6,17 @@ import java.util.List;
 
 public class RollDice {
     // The maximum number of options that can be chosen from
-    private static final int MAX_CHOICES = 15;
+    private static final int MAX_CHOICES = 30;
+
+    public static final String NORMAL = "Normal";
+    // Error codes
+    public static final String NO_CHOICES = "No Choices";
+    public static final String NO_START_BRACKETS = "No Starting Brackets";
+    public static final String NO_END_BRACKETS = "No Ending Brackets";
+    public static final String OTHER_BRACKET_ERROR = "Other Bracket Error";
+    public static final String NULL_INPUT = "Null Input";
+    public static final String INCORRECT_COMMAND = "Incorrect Command";
+    public static final String TOO_MANY_CHOICES = "Too Many Choices";
 
     /**
      * This function will return a random integer between 1 and numSides
@@ -23,45 +33,58 @@ public class RollDice {
     }
 
     /**
-     * This function will take a formatted string as input, where the format is !choose: [a1] [a2] ... [an].
+     * This function will take a formatted string as input, where the
+     * format is !choose: [a1, a2, ..., an].
      * The output will be a list of strings where list.get(i) = ai.
      *
      * @param input
      * @return options
      */
     public static List<String> getOptions(String input){
-        // Check input validity
-        if(input == null || input.length() == 0 || !input.contains("!choose:")){
-            // The input string is invalid
-            return null;
-        }
-        // The input will have the format "!choose: [a1] [a2]...[an]", so we need to remove the "!choose:"
-        String tempInput = input.substring(input.indexOf(":")+1);
         List<String> options = new ArrayList<String>();
-        List<String> optionsTemp = new ArrayList<String>();
+        // Check input validity
+        String returnCode = inputCheckGetOptions(input);
+
+        // If the input code is not normal, return a list containing a flag (false) and
+        // the return code to be used by TheFoodBot to give useful feedback to the user.
+        if(returnCode != NORMAL){
+            options.add("false");
+            options.add(returnCode);
+            return options;
+        }
+        // The input will have the format "!choose: [a1, a2,...,an]", so we need to remove the "!choose:"
+        String trimmedInput = input.substring(input.indexOf(":")+1);
 
         StringBuilder name = new StringBuilder("");
         // Now we have to the the contents inside each set of brackets into a separate string and remove the brackets
-        for(int i = 0; i < tempInput.length(); i++){
-            if(tempInput.charAt(i) == '['){ // If the current character is '[', then skip this iteration
+        for(int i = 0; i < trimmedInput.length(); i++){
+            if(trimmedInput.charAt(i) == '['){ // If the current character is '[', then skip this iteration
                 continue;
             }
-            if(tempInput.charAt(i) == ','){
-                //The closing bracket has been reached, so the current substring is complete
+            if(trimmedInput.charAt(i) == ','){
+                //The comma has been reached, so the current substring is complete
                 // Add the current substring to the list, then result the substring for the next iteration
                 if(i > 1){
                     options.add(name.toString());
                     name = new StringBuilder("");
                 }
             }
-            else if(tempInput.charAt(i) == ']'){
+            else if(trimmedInput.charAt(i) == ']'){
                 // The final choice has been read in, so stop the loop and return the list of options
+                options.add(name.toString());
+
                 break;
             }
             else{ //The closing bracket has not been reached, so append the current character to the current substring
-                name.append(tempInput.charAt(i));
+                name.append(trimmedInput.charAt(i));
             }
 
+        }
+        // Check to see if the number of options exceeds the maximum allowable number
+        if(options.size() > MAX_CHOICES){
+            options = new ArrayList<String>();
+            options.add("false");
+            options.add(TOO_MANY_CHOICES);
         }
         return options;
     }
@@ -77,6 +100,11 @@ public class RollDice {
         int dice;
         if(options == null || options.size() > MAX_CHOICES){
             return choice;
+        }
+        if(options.size() > 1){
+            if(options.get(0) == "false"){
+                return choice;
+            }
         }
         dice = rollDice(options.size());
         if(dice < 1){
@@ -141,6 +169,67 @@ public class RollDice {
         {
             Thread.currentThread().interrupt();
         }
+    }
+
+    /**
+     * This method checks to see whether or not the input string matches the format required
+     * by TheFoodBot. It returns an exit code based on the results. If no errors are found, it
+     * returns 'Normal' as the exit code. Otherwise, checks are performed to determine what the
+     * specific errors are, so that information may be displayed to the user in order to improve their
+     * experience by making the bot's feedback more helpful.
+     *
+     * @param input
+     * @return exitCode
+     */
+    protected static String inputCheckGetOptions(String input){
+        String exitCode = NORMAL;
+
+        if(input == null){
+            return NULL_INPUT;
+        }
+        else if(input.length() == 0){
+            return NO_CHOICES;
+        }
+        else if(!input.contains("!choose:")){
+            return INCORRECT_COMMAND;
+        }
+        if(input.length() <= input.indexOf(":")+1){
+            return NO_CHOICES;
+        }
+
+        boolean hasData = false;
+        boolean hasStartBracket = false;
+        boolean hasEndBracket = false;
+
+        // Check to see if there are starting brackets, ending brackets,
+        // and whether or not there is anything in between. If the string does not
+        // contain any characters other than ';', ' ', '[', and ']' after the !choose:
+        // then the string will give the exit code for no options.
+        for(int i = input.indexOf(":")+1; i < input.length(); i++){
+            if(input.charAt(i) != ':' && input.charAt(i) != ' ' && input.charAt(i) != '['
+            && input.charAt(i) != ']'){
+                hasData = true;
+            }
+            if(input.charAt(i) == '['){
+                hasStartBracket = true;
+            }
+            if(input.charAt(i) == ']'){
+                hasEndBracket = true;
+            }
+        }
+        if(!hasData){
+            return NO_CHOICES;
+        }
+        if(!hasStartBracket && !hasEndBracket){
+            return OTHER_BRACKET_ERROR;
+        }
+        if(!hasStartBracket) {
+            return NO_START_BRACKETS;
+        }
+        if(!hasEndBracket){
+            return NO_END_BRACKETS;
+        }
+        return exitCode;
     }
 
     /**
