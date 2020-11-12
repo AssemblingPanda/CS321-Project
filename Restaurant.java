@@ -46,8 +46,10 @@ public class Restaurant {
 		return name;
 	}
 
+	// Cleaning name
 	public void setName(String name) {
 		if(name.equals("")) return;
+		name = name.replace("See inside","");
 		this.name = name;
 	}
 
@@ -58,7 +60,7 @@ public class Restaurant {
 	// Check to make sure numStars is all numbers, plus the " . "
 	public void setNumStars(String numStars) {
 		if(numStars.equals("") || !(numStars.matches("[0-9][.][0-9]"))) return;
-		this.numStars = numStars;
+		this.numStars = numStars + "/5.0";
 	}
 
 	public String getAddress() {
@@ -90,7 +92,7 @@ public class Restaurant {
 
 	// Check for all numbers, -, (, )
 	public void setPhoneNumber(String phoneNumber) {
-		if(phoneNumber.equals("") || !(numReviews.matches("[(][0-9][0-9][0-9][)][ ][0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]"))) return;
+		if(phoneNumber.equals("") || !(phoneNumber.matches("[(][0-9][0-9][0-9][)][ ][0-9][0-9][0-9][-][0-9][0-9][0-9][0-9]"))) return;
 		this.phoneNumber = phoneNumber;
 	}
 
@@ -98,8 +100,10 @@ public class Restaurant {
 		return website;
 	}
 
+	// Adding additional user options for website + order
 	public void setWebsite(String website) {
 		if(website.equals("") || !(website.contains(".com"))) return;
+		website = website.replace("Order", "\nOrder");
 		this.website = website;
 	}
 
@@ -107,7 +111,7 @@ public class Restaurant {
 		return operationalHours;
 	}
 
-	// Strutured formatting for operational hours and additional information
+	// make it look better, format the structure
 	public void setOperationalHours(String operationalHours) {
 		if(operationalHours.equals("")) return;
 		operationalHours = operationalHours.replace("More hours", "\nMore hours:")
