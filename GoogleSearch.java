@@ -24,26 +24,8 @@ public class GoogleSearch {
         // If "See photos" exists then that means that after that substring,
         // there will be information regarding a restaurant, return that to the caller
         if(plaintext.contains("See photos")){
-            return plaintext.split("See photos")[1];
+            return " XA Potential RestaurantX " + plaintext.split("See photos")[1];
         }
-
-        // Don't think we need this algorithm, everything works very smoothly so far
-        // If 3 restaurants show up:
-        // If algorithm below results in no "See photos" being contained in the plaintext then use this algorithm:
-        // Save info after "Hours or services may differ" that will be the name of the restaurant, but up to a "(" then remove the last token which would be the rating
-        // or Save info after "Hours"
-        // Continue searching after that point after "Delivery" and same as above
-        // Do 1 more time
-        // Append the zip to each of those search queries
-        // ...
-        // end
-
-        // If no results from previous algorithm (not needed?), then another possible algorithm: (complete)
-        // Parsing work: get addresses of restaurants (max 3 of them)
-        // After thorough analysis of countless parsed HTML source code for Google searches,
-        // using split here with the interpunct allows us to grab the address of the resulting restaurants that Google shows
-        // Example: "... · information · information · information · ..."
-        String [] splitPlaintext = plaintext.split("\u00b7"); // "·" interpunct
 
         // Remove the ZIP code from the user input so that we can utilize the restaurant type/cuisine to find the addresses
         String [] splitKeywords = keywords.split(" ");
@@ -51,6 +33,14 @@ public class GoogleSearch {
         for(int i = 0; i < splitKeywords.length-1; i++){
             keywordsPart = keywordsPart + " " + splitKeywords[i];
         }
+
+        // Parsing work: get addresses of restaurants (max 3 of them)
+        // After thorough analysis of countless parsed HTML source code for Google searches,
+        // using split here with the interpunct allows us to grab the address of the resulting restaurants that Google shows
+        // Example: "... · information · information · information · ..."
+        plaintext = plaintext.toLowerCase().replace("restaurant","restaurant ");
+        plaintext = plaintext.toLowerCase().replace(keywordsPart, keywordsPart + " ");
+        String [] splitPlaintext = plaintext.split("\u00b7"); // "·" interpunct
 
         // Parse the plaintext to get the addresses for up to 3 restaurants that Google gave
         // Sometimes there will be extra information past the address which cannot be removed, so cut the overall string
@@ -61,11 +51,11 @@ public class GoogleSearch {
         // Example: " Type/Cuisine Address ..."
         String parsedPlaintext = "";
         for(String s : splitPlaintext){
-            if(s.toLowerCase().startsWith(keywordsPart + " ") || s.toLowerCase().startsWith(" " + "restaurant" + "")) {
-                if (s.replace(" Restaurant ", "").toLowerCase().replace(keywordsPart + " ", "").length() > 30) {
+            if(s.toLowerCase().startsWith(keywordsPart) || s.toLowerCase().startsWith(" " + "restaurant" + "")) {
+                if (s.replace(" restaurant ", "").toLowerCase().replace(keywordsPart + " ", "").length() > 30) {
                     if(s.toLowerCase().startsWith(" restaurant ")) {
                         // Example: " Restaurant Address ..."
-                        s = "Restaurant" + s.substring(11, 30 + 11);
+                        s = "restaurant" + s.substring(11, 30 + 11);
                     }
                     else{
                         // Example: " Type/Cuisine Address ..."
@@ -114,7 +104,7 @@ public class GoogleSearch {
         String completeResult = "";
         String totallyParsed = "";
         String plaintext = doSearch(keyword, 2, "HTMLtoPlainTextRes");
-
+        plaintext = plaintext.replaceAll("([a-z])([A-Z])", "$1 $2");
         // Parsing work: get name and addresses of restaurants (max 2 of them)
         // After thorough analysis of countless parsed HTML source code for Google searches,
         // using split here with the interpunct allows us to grab the address of the resulting restaurants that Google shows
