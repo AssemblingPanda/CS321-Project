@@ -20,24 +20,24 @@ public class TheFoodBot {
         String rollSomeDice = "!roll some dice";
         String rollNSided = "!roll D";
 
-        String restaurantRestrictions = "cafe, buffet, asian, bar, ayce, sports bar, pub, korean, steak, barbeque, " +
-                "chinese, bagels, ice cream, pizza, italian, irish, afghani, mediterranean, turkish, seafood, american" +
-                "sushi, donut, german, vietnamese, spanish, diner, sandwich fine dining, mexican, ethiopian, thai," +
-                "indian, nepalese, uzbeki, jewish, polish, lebanese, jamaican, georgian, french, greek, indonesian" +
-                "japanese, kurdish, pennsylvania dutch, middle eastern, pakistani, malay, russian, soul, filipino" +
-                "british, egyptian, danish, caribbean, bubble tea, cajun, brazilian, bangladeshi, azerbaijani" +
-                "armenian, argentinian, texan, pennsylvania dutch, persian, peruvian, portuguese, romanian, " +
-                "serbian, slovak, somali, taiwanese, tex mex, udupi, ukranian";
+        String restaurantRestrictions = "\ncafe, buffet, asian, bar, ayce, sports bar, pub, korean, steak, barbeque, " +
+                "chinese, bagels, ice cream, pizza, italian, irish, afghani, mediterranean, turkish, seafood, american, " +
+                "sushi, donut, german, vietnamese, spanish, diner, sandwich, fine dining, mexican, ethiopian, thai, " +
+                "indian, nepalese, uzbeki, jewish, polish, lebanese, jamaican, georgian, french, greek, indonesian, " +
+                "japanese, kurdish, pennsylvania dutch, middle eastern, pakistani, malay, russian, soul, filipino, " +
+                "british, egyptian, danish, caribbean, bubble tea, cajun, brazilian, bangladeshi, azerbaijani, " +
+                "armenian, argentinian, texan, persian, peruvian, portuguese, romanian, " +
+                "serbian, slovak, somali, taiwanese, tex mex, udupi, ukranian.\n";
 
         String helpPrompt = "It seems like you are calling for us, but we cannot do whatever it is that you are asking of us.\n" +
-                "Refer to our help menu by typing \"help Menu\" to see what commands are available.";
+                "Refer to our help menu by typing \"!help\" to see what commands are available.";
 
         String helpMenu = "Here is the help menu:\n\n" +
                 "These are the commands that we have available for you:\n" +
-                "!rec Cuisine/Types of Restaurant, ZIP Code\n" +
-                "!new ZIP Code\n" +
-                "!choose: [name1, name2, name3, ..., name30]\n\n" +
-                "Choose from these Types of Restaurant:\n" +restaurantRestrictions;
+                "Want some restaurant recommendations? Enter: !rec Type of Cuisine or Restaurant, ZIP Code\n" +
+                "Choose from the \"Types of Cuisine or Restaurant\" listed here:\n" + restaurantRestrictions +
+                "\nWant to see if there is a recently opened restaurant near you? Enter: !new ZIP Code\n" +
+                "Want us to pick a place for you? Enter: !choose: [option1, option2, ..., option30]\n";
 
         String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !new ZIP code\n"+
                 "If not, then check out our help menu to get you started if you are new! Enter !help menu";
@@ -45,17 +45,17 @@ public class TheFoodBot {
         String messageNoRecent = "No recently opened restaurants found in your area :disappointed:\n";
         String messageNoRecommend = "No recommendable restaurants found in your area :disappointed:\n";
         String messageNoOptions = "It looks like there are not any restaurants for me to choose from. " +
-                "Please try again or type \"!help Menu\" for more information";
+                "Please try again or type \"!help\" for more information";
 
         // Link to a gif of rolling dice to be displayed while the bot is making a selection
         String imageLinkDice = "https://thumbs.gfycat.com/SecondTartCygnet-size_restricted.gif";
 
         String messageStartBracketError = "It looks like you did not use a bracket to start your list of choices." +
-                "The !choose command must have the following format\n\t!choose: [option1,...,option30]";
+                "The !choose command must have the following format\n\t!choose: [option1, ..., option30]";
         String messageEndBracketError = "It looks like you did not use a bracket to end your list of choices." +
-                "The !choose command must have the following format\n\t!choose: [option1,...,option30]";
+                "The !choose command must have the following format\n\t!choose: [option1, ..., option30]";
         String messageOtherBracketError = "It looks like you did not use a bracket to start or end your list of choices." +
-                "The !choose command must have the following format\n\t!choose: [option1,...,option30]";
+                "The !choose command must have the following format\n\t!choose: [option1, ..., option30]";
 
         //TheFoodBot's token:
         String token = "NzY3OTU0NjgzNjQxNzI0OTU4.X45biA.eZt6cUF59N0JN3cItm73elGVCDY";
@@ -120,8 +120,8 @@ public class TheFoodBot {
                     restaurantType = restaurantType.replace(firstLetter, (char)(firstLetter-32));
                     msg.setEmbed(new EmbedBuilder()
                             .setTitle("Unrecognized type of restaurant or cuisine")
-                            .setDescription("Unfortunately, "+restaurantType+" is not one of the recognized types of cuisine. " +
-                                    "You can search for restaurants from the following list:\n" + restaurantRestrictions)
+                            .setDescription("Unfortunately, "+restaurantType+" is not one of the recognized types of restaurants/cuisines. " +
+                                    "You can search for restaurants using the following list:\n" + restaurantRestrictions)
                             .setColor(Color.RED))
                             .send(event.getChannel());
                 }
