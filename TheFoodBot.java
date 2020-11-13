@@ -20,7 +20,7 @@ public class TheFoodBot {
         String rollSomeDice = "!roll some dice";
         String rollNSided = "!roll D";
 
-        String restaurantRestrictions = "\ncafe, buffet, asian, bar, ayce, sports bar, pub, korean, steak, barbeque, " +
+        String restaurantRestrictions = "cafe, buffet, asian, bar, ayce, sports bar, pub, korean, steak, barbeque, " +
                 "chinese, bagels, ice cream, pizza, italian, irish, afghani, mediterranean, turkish, seafood, american, " +
                 "sushi, donut, german, vietnamese, spanish, diner, sandwich, fine dining, mexican, ethiopian, thai, " +
                 "indian, nepalese, uzbeki, jewish, polish, lebanese, jamaican, georgian, french, greek, indonesian, " +
@@ -31,13 +31,12 @@ public class TheFoodBot {
 
         String helpPrompt = "It seems like you are calling for us, but we cannot do whatever it is that you are asking of us.\n" +
                 "Refer to our help menu by typing \"!help\" to see what commands are available.";
-
-        String helpMenu = "Here is the help menu:\n\n" +
-                "These are the commands that we have available for you:\n" +
-                "Want some restaurant recommendations? Enter: !rec Type of Cuisine or Restaurant, ZIP Code\n" +
+        
+        String helpMenu = "Here is the help menu with the available commands:\n\n" +
+                "Want some restaurant recommendations?\nEnter: !rec Type of Cuisine or Restaurant, ZIP Code\n\n" +
                 "Choose from the \"Types of Cuisine or Restaurant\" listed here:\n" + restaurantRestrictions +
-                "\nWant to see if there is a recently opened restaurant near you? Enter: !new ZIP Code\n" +
-                "Want us to pick a place for you? Enter: !choose: [option1, option2, ..., option30]\n";
+                "\nWant to see if there is a recently opened restaurant near you?\nEnter: !new ZIP Code\n\n" +
+                "Want us to pick a place for you?\nEnter: !choose: [option1, option2, ..., option30]\n";
 
         String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !new ZIP code\n"+
                 "If not, then check out our help menu to get you started if you are new! Enter !help";
