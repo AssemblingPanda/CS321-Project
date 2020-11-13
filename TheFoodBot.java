@@ -40,7 +40,7 @@ public class TheFoodBot {
                 "Want us to pick a place for you? Enter: !choose: [option1, option2, ..., option30]\n";
 
         String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !new ZIP code\n"+
-                "If not, then check out our help menu to get you started if you are new! Enter !help menu";
+                "If not, then check out our help menu to get you started if you are new! Enter !help";
 
         String messageNoRecent = "No recently opened restaurants found in your area :disappointed:\n";
         String messageNoRecommend = "No recommendable restaurants found in your area :disappointed:\n";
