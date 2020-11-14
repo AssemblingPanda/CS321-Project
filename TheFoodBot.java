@@ -116,10 +116,6 @@ public class TheFoodBot {
                 // The type of cuisine/restaurant entered by the user is not one of the allowed options,
                 // so display a useful and detailed explanation to the user
                 if (!restaurantRestrictions.contains(restaurantType)) {
-                    // Find the first latter of the restaurant type, which is in lowercase, and convert it to upper case
-                    // so that it looks better to the user when it is displayed to the screen
-                    char firstLetter = restaurantType.charAt(0);
-                    restaurantType = restaurantType.replace(firstLetter, (char)(firstLetter-32));
                     msg.setEmbed(new EmbedBuilder()
                             .setTitle("Unrecognized type of restaurant or cuisine")
                             .setDescription("Unfortunately, "+restaurantType+" is not one of the recognized types of restaurants/cuisines. " +
