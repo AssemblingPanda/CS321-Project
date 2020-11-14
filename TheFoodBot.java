@@ -73,31 +73,31 @@ public class TheFoodBot {
         // For every channel that this bot is in:
         // Create a new "restaurant-notifications" channel, if channel already exists, do not create a channel
         // Send in a notification to the "restaurant-notifications" channel
-        if(api.hasAllUsersInCache()){
-            Server [] servers = api.getServers().toArray(new Server[api.getServers().size()]);
-            for(int i = 0; i < servers.length; i++){
-                String serverId = servers[i].getIdAsString();
-                Server ithServer = api.getServerById(serverId).get();
-                if(ithServer.canYouCreateChannels()) {
-                    List<ServerTextChannel> textChannels = ithServer.getTextChannelsByNameIgnoreCase("restaurant-notifications");
-                    if(textChannels.size() > 0) {
-                        msg.setEmbed(new EmbedBuilder()
-                                .setTitle("New notification")
-                                .setDescription(notificationsPrompt)
-                                .setColor(Color.WHITE))
-                                .send(textChannels.get(0));
-                        //textChannels.get(0).sendMessage(notificationsPrompt);
-                    } else {
-                        msg.setEmbed(new EmbedBuilder()
-                                .setTitle("New notification")
-                                .setDescription(notificationsPrompt)
-                                .setColor(Color.WHITE))
-                                .send(ithServer.createTextChannelBuilder().setName("restaurant notifications").create().join());
-                        //ithServer.createTextChannelBuilder().setName("restaurant notifications").create().join().sendMessage(notificationsPrompt);
-                    }
+
+        Server [] servers = api.getServers().toArray(new Server[api.getServers().size()]);
+        for(int i = 0; i < servers.length; i++){
+            String serverId = servers[i].getIdAsString();
+            Server ithServer = api.getServerById(serverId).get();
+            if(ithServer.canYouCreateChannels()) {
+                List<ServerTextChannel> textChannels = ithServer.getTextChannelsByNameIgnoreCase("restaurant-notifications");
+                if(textChannels.size() > 0) {
+                    msg.setEmbed(new EmbedBuilder()
+                            .setTitle("New notification")
+                            .setDescription(notificationsPrompt)
+                            .setColor(Color.WHITE))
+                            .send(textChannels.get(0));
+                    //textChannels.get(0).sendMessage(notificationsPrompt);
+                } else {
+                    msg.setEmbed(new EmbedBuilder()
+                            .setTitle("New notification")
+                            .setDescription(notificationsPrompt)
+                            .setColor(Color.WHITE))
+                            .send(ithServer.createTextChannelBuilder().setName("restaurant notifications").create().join());
+                    //ithServer.createTextChannelBuilder().setName("restaurant notifications").create().join().sendMessage(notificationsPrompt);
                 }
             }
         }
+
 
         api.addMessageCreateListener(event -> {
             String messageOriginal = event.getMessageContent();
