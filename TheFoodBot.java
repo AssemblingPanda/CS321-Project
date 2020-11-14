@@ -36,7 +36,10 @@ public class TheFoodBot {
                 "Want some restaurant recommendations?\nEnter: !rec Type of Cuisine or Restaurant, ZIP Code\n\n" +
                 "Choose from the \"Types of Cuisine or Restaurant\" listed here:\n" + restaurantRestrictions +
                 "\nWant to see if there is a recently opened restaurant near you?\nEnter: !new ZIP Code\n\n" +
-                "Want us to pick a place for you?\nEnter: !choose: [option1, option2, ..., option30]\n";
+                "Want us to pick a place for you?\nEnter: !choose: [option1, option2, ..., option30]\n" +
+                "\nWant to have some fun? Use our dice roll feature to add some variety to everyday situations. " +
+                "After all, variety is the spice of life!\nEnter: \"!roll dn\" to roll an n-sided die " +
+                "\n(example: !roll d6 will roll a 6-sided die)";
 
         String notificationsPrompt = "Hi! Would you like to see a recently opened restaurant? Enter !new ZIP code\n"+
                 "If not, then check out our help menu to get you started if you are new! Enter !help";
